@@ -57,7 +57,7 @@ static inline int mp_hal_readline(vstr_t *vstr, const char *p) {
 #define mp_hal_readline mp_hal_readline
 static inline int mp_hal_readline(vstr_t *vstr, const char *p) {
     mp_hal_stdio_mode_raw();
-    int ret = readline(vstr, p);
+    int ret = mp_readline(vstr, p);
     mp_hal_stdio_mode_orig();
     return ret;
 }

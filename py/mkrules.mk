@@ -225,6 +225,7 @@ lib $(LIBMICROPYTHON): $(OBJ)
 
 clean:
 	$(RM) -rf $(BUILD) $(CLEAN_EXTRA)
+	$(RM) -f libmicropython.a
 .PHONY: clean
 
 # Clean every non-git file from FROZEN_DIR/FROZEN_MPY_DIR, but making a backup.

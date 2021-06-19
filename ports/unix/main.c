@@ -59,7 +59,7 @@ STATIC uint emit_opt = MP_EMIT_OPT_NONE;
 #if MICROPY_ENABLE_GC
 // Heap size of GC heap (if enabled)
 // Make it larger on a 64 bit machine, because pointers are larger.
-long heap_size = 1024 * 1024 * (sizeof(mp_uint_t) / 4);
+long heap_size = 16 * 1024 * (sizeof(mp_uint_t) / 4);
 #endif
 
 STATIC void stderr_print_strn(void *env, const char *str, size_t len) {
@@ -191,7 +191,7 @@ STATIC int do_repl(void) {
 
     input_restart:
         vstr_reset(&line);
-        int ret = readline(&line, ">>> ");
+        int ret = mp_readline(&line, ">>> ");
         mp_parse_input_kind_t parse_input_kind = MP_PARSE_SINGLE_INPUT;
 
         if (ret == CHAR_CTRL_C) {
@@ -238,7 +238,7 @@ STATIC int do_repl(void) {
             // got a line with non-zero length, see if it needs continuing
             while (mp_repl_continue_with_input(vstr_null_terminated_str(&line))) {
                 vstr_add_byte(&line, '\n');
-                ret = readline(&line, "... ");
+                ret = mp_readline(&line, "... ");
                 if (ret == CHAR_CTRL_C) {
                     // cancel everything
                     printf("\n");
@@ -423,6 +423,7 @@ STATIC void set_sys_argv(char *argv[], int argc, int start_arg) {
 
 MP_NOINLINE int main_(int argc, char **argv);
 
+
 int main(int argc, char **argv) {
     #if MICROPY_PY_THREAD
     mp_thread_init();
@@ -452,7 +453,7 @@ MP_NOINLINE int main_(int argc, char **argv) {
     #endif
 
     // Define a reasonable stack limit to detect stack overflow.
-    mp_uint_t stack_limit = 40000 * (sizeof(void *) / 4);
+    mp_uint_t stack_limit = 8000;
     #if defined(__arm__) && !defined(__thumb2__)
     // ARM (non-Thumb) architectures require more stack.
     stack_limit *= 2;
@@ -463,6 +464,10 @@ MP_NOINLINE int main_(int argc, char **argv) {
 
     #if MICROPY_ENABLE_GC
     char *heap = malloc(heap_size);
+    if (heap == NULL) {
+	    perror("Failed to allocate memory for micropython heap");
+	    return 1;
+    }
     gc_init(heap, heap + heap_size);
     #endif
 
@@ -674,7 +679,8 @@ MP_NOINLINE int main_(int argc, char **argv) {
         inspect = true;
     }
     if (ret == NOTHING_EXECUTED || inspect) {
-        if (isatty(0) || inspect) {
+	    // MTR: FIXME
+        if (isatty(STDIN_FILENO) || inspect) {
             prompt_read_history();
             ret = do_repl();
             prompt_write_history();
@@ -726,7 +732,7 @@ MP_NOINLINE int main_(int argc, char **argv) {
 }
 
 #if !MICROPY_VFS
-uint mp_import_stat(const char *path) {
+mp_import_stat_t mp_import_stat(const char *path) {
     struct stat st;
     if (stat(path, &st) == 0) {
         if (S_ISDIR(st.st_mode)) {

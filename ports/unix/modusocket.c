@@ -38,6 +38,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include <math.h>
+#include <sys/time.h>
 
 #include "py/objtuple.h"
 #include "py/objstr.h"

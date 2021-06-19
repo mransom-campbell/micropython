@@ -506,7 +506,7 @@ void readline_init(vstr_t *line, const char *prompt) {
     #endif
 }
 
-int readline(vstr_t *line, const char *prompt) {
+int mp_readline(vstr_t *line, const char *prompt) {
     readline_init(line, prompt);
     for (;;) {
         int c = mp_hal_stdin_rx_chr();
