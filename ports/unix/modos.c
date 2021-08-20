@@ -272,7 +272,7 @@ STATIC mp_obj_t listdir_next(mp_obj_t self_in) {
     t->items[1] = MP_OBJ_NEW_SMALL_INT(0);
     #endif
 
-    #ifdef _DIRENT_HAVE_D_INO
+    #if _DIRENT_HAVE_D_INO
     t->items[2] = MP_OBJ_NEW_SMALL_INT(dirent->d_ino);
     #else
     t->items[2] = MP_OBJ_NEW_SMALL_INT(0);
