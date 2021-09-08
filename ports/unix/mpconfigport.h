@@ -377,16 +377,16 @@ struct _mp_bluetooth_nimble_malloc_t;
 #ifndef MICROPY_UNIX_STACKLIMIT
 // ARM (non-Thumb) architectures require more stack.
 #if defined(__arm__) && !defined(__thumb2__)
-#define MICROPY_UNIX_STACKLIMIT (8000 * 2)
+#define MICROPY_UNIX_STACKLIMIT (80000 * (sizeof(void *) / 4))
 #else
-#define MICROPY_UNIX_STACKLIMIT (8000)
+#define MICROPY_UNIX_STACKLIMIT (40000 * (sizeof(void *) / 4))
 #endif
 #endif
 
 // Heap size of GC heap (if enabled)
 #ifndef MICROPY_UNIX_DEFAULT_HEAPSIZE
 // Make it larger on a 64 bit machine, because pointers are larger.
-#define MICROPY_UNIX_DEFAULT_HEAPSIZE (16 * 1024 * (sizeof(mp_uint_t) / 4))
+#define MICROPY_UNIX_DEFAULT_HEAPSIZE (1024 * 1024 * (sizeof(mp_uint_t) / 4))
 #endif
 
 #endif // MICROPY_UNIX_MINIMAL
