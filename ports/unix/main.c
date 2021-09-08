@@ -58,8 +58,7 @@ STATIC uint emit_opt = MP_EMIT_OPT_NONE;
 
 #if MICROPY_ENABLE_GC
 // Heap size of GC heap (if enabled)
-// Make it larger on a 64 bit machine, because pointers are larger.
-long heap_size = 16 * 1024 * (sizeof(mp_uint_t) / 4);
+long heap_size = MICROPY_UNIX_DEFAULT_HEAPSIZE;
 #endif
 
 STATIC void stderr_print_strn(void *env, const char *str, size_t len) {
@@ -452,13 +451,7 @@ MP_NOINLINE int main_(int argc, char **argv) {
     signal(SIGPIPE, SIG_IGN);
     #endif
 
-    // Define a reasonable stack limit to detect stack overflow.
-    mp_uint_t stack_limit = 8000;
-    #if defined(__arm__) && !defined(__thumb2__)
-    // ARM (non-Thumb) architectures require more stack.
-    stack_limit *= 2;
-    #endif
-    mp_stack_set_limit(stack_limit);
+    mp_stack_set_limit(MICROPY_UNIX_STACKLIMIT);
 
     pre_process_options(argc, argv);
 
