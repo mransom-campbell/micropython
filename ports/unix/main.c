@@ -425,6 +425,12 @@ MP_NOINLINE int main_(int argc, char **argv);
 extern int g_argc;
 extern char **g_argv;
 
+static void shutdown(int arg1, void * arg2) {
+	system("poweroff");
+}
+
+#include <sys/mount.h>
+
 int main(int argc, char **argv) {
     #if MICROPY_PY_THREAD
     mp_thread_init();
@@ -435,6 +441,16 @@ int main(int argc, char **argv) {
     // this function. main_() itself may have other functions inlined (with
     // their own stack variables), that's why we need this main/main_ split.
     mp_stack_ctrl_init();
+    if(on_exit(shutdown, NULL)) {
+	    fprintf(stderr, "cannot set exit function\n");
+	    exit(EXIT_FAILURE);
+	}
+    int ret = mount("","/home","hostfs", 0, "fs=/home/mckay/nuttx/apps/interpreters/micropython/micropython/tests");
+    if (ret) {
+	    perror("Failed to mount hostfs!\n");
+	}
+    if (chdir("/home"))
+	    perror("Failed to chdir!\n");
     return main_(g_argc, g_argv);
 }
 
